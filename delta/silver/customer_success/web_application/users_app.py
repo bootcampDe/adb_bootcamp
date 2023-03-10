@@ -42,6 +42,7 @@ df = (
              
              f.expr('concat(user_explode.firstName," ",user_explode.maidenName," ",user_explode.lastName)').alias('Name'),
              f.col('user_explode.birthDate').alias('birthDate'),
+             f.floor(f.datediff(f.current_date(), f.to_date(f.col('user_explode.birthDate'), "yyyy-MM-dd"))/365).alias("Age"),
              f.col('user_explode.gender').alias('gender'), 
              f.col('user_explode.height').alias('height'), 
              f.col('user_explode.weight').alias('weight'),
@@ -89,6 +90,11 @@ df = (
 
 # COMMAND ----------
 
+# DBTITLE 1,Analisando os dados
+df.display()
+
+# COMMAND ----------
+
 # DBTITLE 1,Persiste os dados na camada Silver.
 df.write \
   .mode("overwrite") \
@@ -97,9 +103,3 @@ df.write \
   .option("mergeSchema","True") \
   .partitionBy("DT_IMPORTACAO") \
   .saveAsTable(camada_escrita+"."+nome_tabela_destino)
-
-# COMMAND ----------
-
-# DBTITLE 1,Análise rápida
-# MAGIC %sql
-# MAGIC select * from silver.users_app
